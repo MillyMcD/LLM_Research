@@ -1,6 +1,9 @@
 import json
 import re
 import ollama
+import pandas as pd
+from tqdm import tqdm
+from pathlib import Path
 
 class Verifier:
   """
@@ -37,7 +40,7 @@ class Verifier:
     p += 'and do not yap. Make sure your output is valid JSON.'
     return p
   
-  def extract_and_parse(text:str,required_fields:dict):
+  def extract_and_parse(self,text:str,required_fields:dict):
     """
     Extract/parse response into a dictionary. Makes sure format
     is respected
@@ -63,6 +66,41 @@ class Verifier:
     response = self.extract_and_parse(response['response'],fields)
 
     return response
+
+  
+  def judge_all_questions(self,df,model,save_dir):
+    """
+    Judge all question responses
+    """
+    records = df.to_dict(orient='records')
+
+    missed,marked = [],[]
+    for rec in tqdm(records):
+      gt = rec['response']
+      pr = rec['llm_response']
+      id = rec['id']
+
+      resp = self.judge(pr,gt)
+      nrec = {'id':id}
+      if len(resp) == 0:
+        print('missed ',id)
+        missed.append(id)
+      nrec.update(resp)
+      marked.append(nrec)
+
+    marked_df = pd.DataFrame(marked)
+    marked_df['mean_time'] =df['time'].mean()
+    marked_df['mean_tps'] =df['tps'].mean()
+
+    save_dir = Path(save_dir)
+    save_dir.mkdir(exist_ok=True,parents=True)
+    
+    marked_df['accuracy'] = marked_df['consistent'].value_counts()['True'] / len(marked_df)
+    marked_df.to_csv(save_dir/f'{model}.csv',index=False)
+
+    
+
+    
     
 
   
