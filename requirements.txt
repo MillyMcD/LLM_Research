@@ -1,2 +1,7 @@
 notebook==7.0.6
 ollama==0.2.1
+tokenizers==0.15.0
+langchain==0.0.306
+jq==1.6.0
+chromadb==0.4.15
+sentence-transformers==2.3.1
