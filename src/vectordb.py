@@ -37,7 +37,7 @@ class ChromaDB:
     Create a record
     """
     keys = ['id','context','response']
-    return {k:record[k] for k in keys}
+    return {k:record[k] for k in keys if k in record}
   
   def ingest_df(self,df):
     """
@@ -62,7 +62,7 @@ class ChromaDB:
     )
     self.vector_store.persist()
   
-  def retrieve(self,query,k=4,key:str='response'):
+  def retrieve(self,query,k=4,key:str='response',as_prompt:bool=False):
     """
     retrieve top k documents
     """
@@ -71,6 +71,11 @@ class ChromaDB:
   
     results = []
     for r in retrieval:
-      print(r)
       results.append(r[0].metadata[key])
-    return results
+    if not as_prompt:
+      return results
+
+    prompt = 'Use the following information to generate your answer:\n'
+    for r in results:
+      prompt += f'- {r}\n'
+    return prompt

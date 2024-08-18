@@ -5,6 +5,7 @@ import ollama
 
 from tqdm import tqdm
 from pathlib import Path
+from LLM_Research.src.vectordb import ChromaDB
 
 class QuestionAnswering:
     """
@@ -26,12 +27,16 @@ class QuestionAnswering:
                 queries, and if you are unsure you will ask the customer to hold while they
                 are transferred to a human agent.'''
 
-    def ask_question(self,record:dict):
+    def ask_question(self,record:dict,vector_db:ChromaDB=None,k:int=1):
         """ask a question using the record"""
         rec = {k:v for k,v in record.items()} #copy to avoid overwriting
         system = self.system_prompt()
         prompt = record['question']
 
+        if vector_db is not None:
+          prompt += ' '
+          prompt += vector_db.retrieve(record['question'],k=k,as_prompt=True)
+        
         start = time.time()
         llm_response = ollama.generate(model = self.model, system = system, prompt = prompt,
                                        options = {'temperature':0.0,
@@ -42,7 +47,7 @@ class QuestionAnswering:
         record['tps'] = len(record['llm_response'].split()) / record['time']
         return record
 
-    def ask_all_questions(self,save_path:str|Path):
+    def ask_all_questions(self,save_path:str|Path,vector_db:ChromaDB=None,k:int=1):
         """ask all questions"""
         enriched_records = []
         folder = Path(save_path) / self.model
@@ -50,7 +55,7 @@ class QuestionAnswering:
 
         for i,q in enumerate(tqdm(self.records)):
             id = q['id']
-            resp = self.ask_question(record=q)
+            resp = self.ask_question(record=q,vector_db=vector_db,k=k)
             resp['model'] = self.model
             with open(folder/f'{id}.json','w') as f:
               json.dump(resp,f)
