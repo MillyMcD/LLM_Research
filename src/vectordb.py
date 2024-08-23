@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -68,19 +69,34 @@ class ChromaDB:
     )
     self.vector_store.persist()
   
-  def retrieve(self,query,k=4,key:str='response',as_prompt:bool=False):
+  def rerank(self,query,retrieval):
+    """
+    Rerank the documents using CrossEncoder model
+    """
+    scores = self.reranker.predict(
+      [(query,ret[0].page_content) for ret in retrieval]
+    )
+    return [retrieval[i] for i in np.argsort(scores)[::-1]][:3]
+  
+  def retrieve(self,query,k=4,key:str='response',as_prompt:bool=False,
+               rerank:bool=False):
     """
     retrieve top k documents
     """
+    if rerank:
+      k = 10
     retrieval = self.vector_store.similarity_search_with_relevance_scores(
         query,k)
+
+    if rerank:
+      retrieval = self.rerank(query,retrieval)
   
     results = []
     for r in retrieval:
       results.append(r[0].metadata[key])
     if not as_prompt:
       return results
-
+    
     prompt = 'Use the following information to generate your answer:\n'
     for r in results:
       prompt += f'- {r}\n'
