@@ -3,6 +3,7 @@ from pathlib import Path
 from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.schema.document import Document
+from sentence_transformers import CrossEncoder
 
 class ChromaDB:
   """
@@ -16,6 +17,11 @@ class ChromaDB:
     self.embedding_function = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-mpnet-base-v2",
         cache_folder=str(self.cache_dir)+'/huggingface_cache'
+    )
+
+    self.reranker = CrossEncoder(
+      model_name = 'cross-encoder/ms-marco-MiniLM-L-6-v2',
+      max_length = 512
     )
 
     self.chromadb_dir = Path(self.cache_dir)/'chromadb'
