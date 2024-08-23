@@ -10,13 +10,16 @@ class ChromaDB:
   """
   Vector Database via ChromaDB
   """
-  def __init__(self,cache_dir,data_df=None):
+  def __init__(self,cache_dir,data_df=None, 
+               embedding_model:str = "all-mpnet-base-v2"):
     self.cache_dir = cache_dir
     self.data_df = data_df
     
     #create embedding function
+  
+    self.embedding_model = f'sentence-transformers/{embedding_model}'
     self.embedding_function = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-mpnet-base-v2",
+        model_name=self.embedding_model,
         cache_folder=str(self.cache_dir)+'/huggingface_cache'
     )
 

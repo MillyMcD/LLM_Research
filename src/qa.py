@@ -27,7 +27,8 @@ class QuestionAnswering:
                 queries, and if you are unsure you will ask the customer to hold while they
                 are transferred to a human agent.'''
 
-    def ask_question(self,record:dict,vector_db:ChromaDB=None,k:int=1):
+    def ask_question(self,record:dict,vector_db:ChromaDB=None,k:int=1,
+                      rerank:bool=False):
         """ask a question using the record"""
         rec = {k:v for k,v in record.items()} #copy to avoid overwriting
         system = self.system_prompt()
@@ -35,7 +36,8 @@ class QuestionAnswering:
 
         if vector_db is not None:
           prompt += ' '
-          prompt += vector_db.retrieve(record['question'],k=k,as_prompt=True)
+          prompt += vector_db.retrieve(record['question'],k=k,as_prompt=True,
+                                        rerank=rerank)
         
         start = time.time()
         llm_response = ollama.generate(model = self.model, system = system, prompt = prompt,
@@ -47,7 +49,8 @@ class QuestionAnswering:
         record['tps'] = len(record['llm_response'].split()) / record['time']
         return record
 
-    def ask_all_questions(self,save_path:str|Path,vector_db:ChromaDB=None,k:int=1):
+    def ask_all_questions(self,save_path:str|Path,vector_db:ChromaDB=None,k:int=1,
+                           rerank:bool=False):
         """ask all questions"""
         enriched_records = []
         folder = Path(save_path) / self.model
@@ -55,7 +58,9 @@ class QuestionAnswering:
 
         for i,q in enumerate(tqdm(self.records)):
             id = q['id']
-            resp = self.ask_question(record=q,vector_db=vector_db,k=k)
+            resp = self.ask_question(record=q,vector_db=vector_db,k=k,
+                               rerank = rerank)
+            print(rerank)
             resp['model'] = self.model
             with open(folder/f'{id}.json','w') as f:
               json.dump(resp,f)
