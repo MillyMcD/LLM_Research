@@ -1,17 +1,16 @@
 # LLM_Research
-This repository contains the Large Language Model research for the MSc AI Dissertation
+This repository contains the Large Language Model research for the MSc AI Dissertation. It requires that you have Docker desktop installed, and a GPU available to you. This project was built using an Intel I7 Predator Triton 300 Acer Laptop with a GeForce RTX3080 (8GB RAM)
 
 ## Installation
 To install this project, call
 ```
-sh installation.sh
+docker compose up --build
 ```
-This will create an environment called `llm_env`. Do this only once, or only if you want to reinstall the project
 
-## Spinning up the notebook server
-Once installed, you can deploy the project by calling 
+From then on, call
+```
+docker compose up
+```
 
-```
-source run.sh
-```
+Navigate to http://localhost:8888 to access the Jupyter Notebook server
 
