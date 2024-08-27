@@ -5,3 +5,4 @@ langchain==0.0.306
 jq==1.6.0
 chromadb==0.4.15
 sentence-transformers==2.3.1
+pandas==2.2.2
