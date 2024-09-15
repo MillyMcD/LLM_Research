@@ -5,7 +5,7 @@ import ollama
 
 from tqdm import tqdm
 from pathlib import Path
-from LLM_Research.src.vectordb import ChromaDB
+from src.vectordb import ChromaDB
 
 class QuestionAnswering:
     """
@@ -16,7 +16,9 @@ class QuestionAnswering:
         self.model = model
 
     def process_dataset(self,df):
-        """convert dataset to records"""
+        """convert dataset to records
+        i.e. our dataframe becomes a list of dictionaries, where
+        the dictionary contains the question and answer pair"""
         self.records = df.to_dict(orient='records')
 
     def system_prompt(self):
@@ -30,10 +32,15 @@ class QuestionAnswering:
     def ask_question(self,record:dict,vector_db:ChromaDB=None,k:int=1,
                       rerank:bool=False):
         """ask a question using the record"""
-        rec = {k:v for k,v in record.items()} #copy to avoid overwriting
+
+        #this copies record into a new dictionary to avoid overwriting original
+        rec = {ki:v for ki,v in record.items()} 
+
+        #create the prompts. System and user
         system = self.system_prompt()
         prompt = record['question']
 
+        
         if vector_db is not None:
           prompt += ' '
           prompt += vector_db.retrieve(record['question'],k=k,as_prompt=True,
@@ -44,6 +51,7 @@ class QuestionAnswering:
                                        options = {'temperature':0.0,
                                                   'num_predict':1000})
         end = time.time()
+        
         record['llm_response'] = llm_response['response']
         record['time'] = end - start
         record['tps'] = len(record['llm_response'].split()) / record['time']

@@ -18,14 +18,13 @@ class Verifier:
     """
     format = {'consistent':'(either "True" or "False")',
                'justification':'(description why the samples are consistent)'}
-
-
+      
     p  = '# YOUR ROLE\n'
     p += 'You are a question and answering validation capability. '
     p += 'You can accurately compare two potential pieces of text for similarity and consistency.'
 
     p += '\n\n# YOUR TASK\n'
-    p += f'Your task is to assess the judge if information A : {gen_response}\n'
+    p += f'Your task is to assess / judge if information A : {gen_response}\n'
     p += f'IS CONSISTENT with information B: {ground_truth_answer}\n'
     p += 'Information B should be treated as the TRUTH even if you disagree with its content. '
     p += 'If the text samples contain similar and non-conflicting information, '
@@ -50,6 +49,7 @@ class Verifier:
       data = eval('{' + match + '}')
       data = {k:v for k,v in data.items() if k in required_fields}
       return data
+    return {'consistent':False,'justification':'missed'}
 
   def judge(self,gen_response:str,ground_truth_answer:str,
                        temperature:float=0.0,seed:int=1000):
