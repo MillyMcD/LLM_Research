@@ -2,15 +2,24 @@ import json
 import re
 import ollama
 import pandas as pd
+
 from tqdm import tqdm
 from pathlib import Path
+from langchain.embeddings import HuggingFaceEmbeddings
+from src.semscore import sem_score
 
 class Verifier:
   """
   Get a LLM to mark if generated answer is consistent with the ground-truth
   """
-  def __init__(self,model:str='phi3'):
+  def __init__(self,model:str='phi3',embedding_model = "all-mpnet-base-v2",cache_dir:str = '/data/cache'):
     self.model=model
+
+    embedding_model = f'sentence-transformers/{embedding_model}'
+    self.emb_func = HuggingFaceEmbeddings(
+        model_name = embedding_model,
+        cache_folder = cache_dir
+    )
 
   def system_prompt(self,gen_response:str,ground_truth_answer:str):
     """
@@ -51,7 +60,7 @@ class Verifier:
       return data
     return {'consistent':False,'justification':'missed'}
 
-  def judge(self,gen_response:str,ground_truth_answer:str,
+  def judge_llm(self,gen_response:str,ground_truth_answer:str,
                        temperature:float=0.0,seed:int=1000):
     """
     Judge if response is consistent
@@ -67,25 +76,33 @@ class Verifier:
 
     return response
 
-  
+  def judge_sem_score(self,gen_response,ground_truth_answer):
+      return sem_score(
+          gen_response,
+          ground_truth_answer,
+          self.emb_func)
+
   def judge_all_questions(self,df,model,save_dir):
     """
     Judge all question responses
     """
     records = df.to_dict(orient='records')
 
-    missed,marked = [],[]
+    marked = []
     for rec in tqdm(records):
       gt = rec['response']
       pr = rec['llm_response']
       id = rec['id']
 
-      resp = self.judge(pr,gt)
+      #add llm judge response
+      resp = self.judge_llm(pr,gt)
+      
       nrec = {'id':id}
-      if len(resp) == 0:
-        print('missed ',id)
-        missed.append(id)
       nrec.update(resp)
+
+      #add sem score
+      nrec['sem_score'] = self.judge_sem_score(gt,pr)
+
       marked.append(nrec)
 
     marked_df = pd.DataFrame(marked)
@@ -96,6 +113,7 @@ class Verifier:
     save_dir.mkdir(exist_ok=True,parents=True)
     
     marked_df['accuracy'] = marked_df['consistent'].value_counts()['True'] / len(marked_df)
+    marked_df['sem_acc'] = (marked_df['sem_score']>0.8).value_counts()[True]/len(marked_df)
     marked_df.to_csv(save_dir/f'{model}.csv',index=False)
 
     

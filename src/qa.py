@@ -19,7 +19,7 @@ class QuestionAnswering:
         """convert dataset to records
         i.e. our dataframe becomes a list of dictionaries, where
         the dictionary contains the question and answer pair"""
-        self.records = df.to_dict(orient='records')
+        self.records = df.to_dict(orient='records') #splits into pairs to loop through
 
     def system_prompt(self):
         """system prompt"""
@@ -30,7 +30,7 @@ class QuestionAnswering:
                 are transferred to a human agent.'''
 
     def ask_question(self,record:dict,vector_db:ChromaDB=None,k:int=1,
-                      rerank:bool=False):
+                      advanced:bool=False):
         """ask a question using the record"""
 
         #this copies record into a new dictionary to avoid overwriting original
@@ -44,7 +44,7 @@ class QuestionAnswering:
         if vector_db is not None:
           prompt += ' '
           prompt += vector_db.retrieve(record['question'],k=k,as_prompt=True,
-                                        rerank=rerank)
+                                        advanced=advanced)
         
         start = time.time()
         llm_response = ollama.generate(model = self.model, system = system, prompt = prompt,
@@ -68,7 +68,6 @@ class QuestionAnswering:
             id = q['id']
             resp = self.ask_question(record=q,vector_db=vector_db,k=k,
                                rerank = rerank)
-            print(rerank)
             resp['model'] = self.model
             with open(folder/f'{id}.json','w') as f:
               json.dump(resp,f)

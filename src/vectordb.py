@@ -25,7 +25,7 @@ class ChromaDB:
 
     self.reranker = CrossEncoder(
       model_name = 'cross-encoder/ms-marco-MiniLM-L-6-v2',
-      max_length = 512
+      max_length = 512 #response
     )
 
     self.chromadb_dir = Path(self.cache_dir)/'chromadb'
@@ -82,16 +82,16 @@ class ChromaDB:
     return [retrieval[i] for i in np.argsort(scores)[::-1]][:3]
   
   def retrieve(self,query,k=4,key:str='response',as_prompt:bool=False,
-               rerank:bool=False):
+               advanced:bool=False):
     """
     retrieve top k documents
     """
-    if rerank:
+    if advanced:
       k = 10
     retrieval = self.vector_store.similarity_search_with_relevance_scores(
         query,k)
 
-    if rerank:
+    if advanced:
       retrieval = self.rerank(query,retrieval)
   
     results = []
