@@ -82,7 +82,7 @@ class ChromaDB:
     return [retrieval[i] for i in np.argsort(scores)[::-1]][:3]
   
   def retrieve(self,query,k=4,key:str='response',as_prompt:bool=False,
-               advanced:bool=False):
+               advanced:bool=False, threshold:float=None):
     """
     retrieve top k documents
     """
@@ -93,13 +93,18 @@ class ChromaDB:
 
     if advanced:
       retrieval = self.rerank(query,retrieval)
-  
+
+    if threshold is not None:
+        retrieval = [(r,i) for r,i in retrieval if i > threshold]
+
     results = []
     for r in retrieval:
       results.append(r[0].metadata[key])
     if not as_prompt:
       return results
-    
+
+    if len(results) == 0:
+        return ""
     prompt = 'Use the following information to generate your answer:\n'
     for r in results:
       prompt += f'- {r}\n'

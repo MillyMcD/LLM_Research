@@ -53,6 +53,9 @@ class Verifier:
     Extract/parse response into a dictionary. Makes sure format
     is respected
     """
+    text = text.replace("(","")
+    text = text.replace(")","")
+    
     matches = re.findall(r'\{(.*?)\}', text)
     for match in matches:
       data = eval('{' + match + '}')
@@ -90,8 +93,8 @@ class Verifier:
 
     marked = []
     for rec in tqdm(records):
-      gt = rec['response']
-      pr = rec['llm_response']
+      gt = str(rec['response'])
+      pr = str(rec['llm_response'])
       id = rec['id']
 
       #add llm judge response
@@ -101,7 +104,8 @@ class Verifier:
       nrec.update(resp)
 
       #add sem score
-      nrec['sem_score'] = self.judge_sem_score(gt,pr)
+      if self.emb_func is not None:
+          nrec['sem_score'] = self.judge_sem_score(gt,pr)
 
       marked.append(nrec)
 
@@ -113,7 +117,8 @@ class Verifier:
     save_dir.mkdir(exist_ok=True,parents=True)
     
     marked_df['accuracy'] = marked_df['consistent'].value_counts()['True'] / len(marked_df)
-    marked_df['sem_acc'] = (marked_df['sem_score']>0.8).value_counts()[True]/len(marked_df)
+    if self.emb_func is not None:
+        marked_df['sem_acc'] = sum(marked_df['sem_score']>0.7)/len(marked_df)
     marked_df.to_csv(save_dir/f'{model}.csv',index=False)
 
     
