@@ -79,7 +79,6 @@ def filter_folder_to_dataframe(pth:Path,model_list:list,ids:list):
     for dir in Path(pth).iterdir():
         if not dir.name in ['gemma2','llama3.1']:
             continue
-        print(dir)
         for file in dir.iterdir():
             if file.stem not in model_list:
                 continue
@@ -89,7 +88,6 @@ def filter_folder_to_dataframe(pth:Path,model_list:list,ids:list):
             record = {f'{dir.name}_accuracy': df['consistent'].sum()/len(df)}
             record['sem_accuracy'] = (df['sem_score']>0.7).sum()/len(df)
             record['model'] = file.stem
-            #record[f'{dir.name}_df'] = df
             if file.stem in records.keys():
                 records[file.stem].update(record)
             else:
