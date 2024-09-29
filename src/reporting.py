@@ -4,6 +4,24 @@ import numpy as np
 from pathlib import Path
 
 def folder_to_dataframe(pth:Path,model_list:list):
+    """
+    Unpack a Verifier output folder into a pandas dataframe.
+
+    Parameters
+    ----------
+    pth : `str`
+        path to folder
+    model_list : list[str]
+        List of models to include
+
+    Returns
+    -------
+    `pd.DataFrame`
+        dataframe with results
+    """
+
+    #loop through folders in verifier folder, then loop through files to grab results
+    #then unpack results into a dictionary
     records = {}
     for dir in Path(pth).iterdir():
         if not dir.name in ['gemma2','llama3.1']:
@@ -22,6 +40,7 @@ def folder_to_dataframe(pth:Path,model_list:list):
             
             records[file.stem][f'{dir.name}_accuracy'] = df['accuracy'].mean()
 
+    #tidy up
     nrecords = []
     acc_columns = None
     for k,v in records.items():
@@ -38,6 +57,24 @@ def folder_to_dataframe(pth:Path,model_list:list):
 
 
 def filter_folder_to_dataframe(pth:Path,model_list:list,ids:list):
+    """
+    Unpack a Verifier output folder into a pandas dataframe, but now 
+    filtering the questions by ID.
+
+    Parameters
+    ----------
+    pth : `str`
+        path to folder
+    model_list : list[str]
+        List of models to include
+
+    Returns
+    -------
+    `pd.DataFrame`
+        dataframe with results
+    """
+    #loop through folders in verifier folder, then loop through files to grab results
+    #then unpack results into a dictionary
     records = {}
     for dir in Path(pth).iterdir():
         if not dir.name in ['gemma2','llama3.1']:
@@ -57,7 +94,7 @@ def filter_folder_to_dataframe(pth:Path,model_list:list,ids:list):
                 records[file.stem].update(record)
             else:
                 records[file.stem] = record
-
+    #tidy up
     nrecords = []
     acc_columns = None
     for k,v in records.items():
