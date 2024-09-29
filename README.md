@@ -14,3 +14,12 @@ docker compose up
 
 Navigate to http://localhost:8888 to access the Jupyter Notebook server
 
+## Source Code
+All source code is found in the `src/` folder. There are several Python files containing classes and objects to perform this analysis and run
+
+## Notebooks
+- `component_experiments.ipynb` : Notebook for running all component experiments i.e. comparing RAG, LLMs and so forth
+- `pipeline_experiments.ipynb` : Notebook for testing the pipeline and its hand off mechanisms
+- `unsloth_finetuning.ipynb` : Ported directly from Unsloth; for fine-tuning a 4-bit instruct model. NOTE! Exporting to GGUF requires a lot of memory. Recommend copying this notebook and using Colab.
+- `compile_results.ipynb` : Notebook for getting results together for presentation
+
