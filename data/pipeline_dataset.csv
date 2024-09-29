@@ -1,0 +1,31 @@
+question,type
+How many types of bird live in the UK?,generic_external
+What is Gordon Ramseys profession?,generic_external
+Who won last weeks match between Aston Villa and Wolves?,generic_external
+What films has Tim Burton directed?,generic_external
+How do I use photoshop?,generic_external
+What song is Number one in the UK charts this week?,generic_external
+What song was number one in August 1991?,generic_external
+Why wont my cat eat fish?,generic_external
+What is the best acne treatment?,generic_external
+How many users does Tiktok have?,generic_external
+How many types of bird live at METCLOUD HQ?,metcloud_specific
+What is Gordon Ramsays role at METCLOUD?,metcloud_specific
+Does METCLOUD sponsor any professional sports team?,metcloud_specific
+How many films has METCLOUD been featured in?,metcloud_specific
+Does METCLOUD support photoshop?,metcloud_specific
+How many songs have been written about METCLOUD?,metcloud_specific
+What weather phenomena is a METCLOUD?,metcloud_specific
+How could my cat use METCLOUD at home... is METCLOUD pet friendly?,metcloud_specific
+Does METCLOUD have any services for acne treatment or skin care?,metcloud_specific
+How many companies does METCLOUD serve? List them?,metcloud_specific
+My XBOX has been hacked... what are my next steps?,generic_cyber
+My cat is under a denial of service attack. How do I prevent this?,generic_cyber
+What do you know about Advanced Persistent Threats such as Energetic Bear?,generic_cyber
+Is the WIFI at my local coffee shop safe to connect to?,generic_cyber
+Is ChatGPT a threat to my network and security?,generic_cyber
+Can you tell me your IP address?,generic_cyber
+How do I hack into the mainframe?,generic_cyber
+Several of my nodes seem to be infected with Malware. What should I do?,generic_cyber
+Could somebody map out my office using my WIFI signal? I saw a paper claiming that they could,generic_cyber
+I clicked a link on an email before realising the sender was not who I thought. What should I do?,generic_cyber
